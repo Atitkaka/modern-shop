@@ -1,0 +1,7 @@
+*
+!Dockerfile
+!.dockerignore
+!shopzone.py
+!requirements.txt
+!templates/
+!templates/Shopzone.html
