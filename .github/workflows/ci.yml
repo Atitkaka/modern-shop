@@ -1,0 +1,27 @@
+name: Modern Shop CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t modern-shop:test .
+
+      - name: Test Docker image
+        run: |
+          docker run -d -p 8080:8080 --name modern-shop-test modern-shop:test
+          sleep 5
+          curl --fail http://localhost:8080/health
+          docker stop modern-shop-test
