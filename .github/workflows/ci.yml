@@ -11,17 +11,30 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t modern-shop:test .
+        run: docker build -t atitk/modern-shop:latest .
 
       - name: Test Docker image
         run: |
-          docker run -d -p 8080:8080 --name modern-shop-test modern-shop:test
+          docker run -d -p 8080:8080 --name modern-shop-test atitk/modern-shop:latest
           sleep 5
           curl --fail http://localhost:8080/health
           docker stop modern-shop-test
+
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker push atitk/modern-shop:latest
