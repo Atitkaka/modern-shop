@@ -161,7 +161,7 @@ def add_to_cart():
     data = request.get_json(silent=True) or {}
 
     try:
-        product_id = int(data.get("id", 
+        product_id = int(data.get("id", 0))
         quantity = int(data.get("quantity", 1))
     except (ValueError, TypeError):
         return jsonify({"error": "Invalid product or quantity"}), 400
