@@ -1,4 +1,5 @@
-name: Modern Shop CI Pipeline
+
+name: Modern Shop CI/CD Pipeline
 
 on:
   push:
@@ -8,8 +9,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  build-and-test:
+  build-test-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,8 +26,9 @@ jobs:
       - name: Build Docker image
         run: docker build -t atitk/modern-shop:latest .
 
-      - name: Test Docker image
+      - name: Run application health test
         run: |
+<<<<<<< HEAD
           docker run -d -p 8080:8080 --name modern-shop-test atitk/modern-shop:latest
           sleep 5
           curl --fail http://localhost:8080/health
@@ -38,3 +44,39 @@ jobs:
       - name: Push image to Docker Hub
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: docker push atitk/modern-shop:latest
+=======
+          docker run -d -p 8080:8080 --name modern-shop-test modern-shop:test
+          for i in {1..15}; do
+            if curl --fail http://localhost:8080/health; then
+              break
+            fi
+            sleep 2
+          done
+          curl --fail http://localhost:8080/health
+          docker stop modern-shop-test
+
+      - name: Authenticate to Google Cloud
+        if: github.event_name == 'push'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/549728317193/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@project-d19903b7-9770-47e8-beb.iam.gserviceaccount.com
+
+      - name: Setup Google Cloud SDK
+        if: github.event_name == 'push'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Google Cloud Run
+        if: github.event_name == 'push'
+        run: |
+          gcloud run deploy modern-shop \
+            --source . \
+            --project project-d19903b7-9770-47e8-beb \
+            --region europe-west1 \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 512Mi \
+            --cpu 1 \
+            --min 0 \
+            --max 2
+>>>>>>> 8615a89dceead9299963724940bfed93f5bc74b1
