@@ -1,6 +1,8 @@
 
 from flask import Flask, render_template, jsonify, request, session
 
+APP_VERSION = "1.0.1"
+
 app = Flask(__name__, template_folder="templates")
 
 # Development secret key. Change this before production deployment.
@@ -138,6 +140,15 @@ def health():
     return jsonify({"status": "healthy"}), 200
 
 
+# Application version
+@app.route("/api/version")
+def get_version():
+    return jsonify({
+        "application": "Modern Shop",
+        "version": APP_VERSION
+    })
+
+
 # Get shopping cart
 @app.route("/api/cart")
 def get_cart():
@@ -150,7 +161,7 @@ def add_to_cart():
     data = request.get_json(silent=True) or {}
 
     try:
-        product_id = int(data.get("id", 0))
+        product_id = int(data.get("id", 
         quantity = int(data.get("quantity", 1))
     except (ValueError, TypeError):
         return jsonify({"error": "Invalid product or quantity"}), 400
