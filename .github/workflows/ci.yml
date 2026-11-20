@@ -18,17 +18,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
+    env:
+      PROJECT_ID: project-d19903b7-9770-47e8-beb
+      REGION: europe-west1
+      IMAGE_URI: europe-west1-docker.pkg.dev/project-d19903b7-9770-47e8-beb/modern-shop/modern-shop:latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t modern-shop:latest .
+        run: docker build -t "$IMAGE_URI" .
 
       - name: Run application health test
         run: |
-          docker run -d --rm -p 8080:8080 --name modern-shop-test modern-shop:latest
+          docker run -d --rm -p 8080:8080 --name modern-shop-test "$IMAGE_URI"
           for i in {1..15}; do
             if curl --fail http://localhost:8080/health; then
               break
@@ -49,13 +54,21 @@ jobs:
         if: github.event_name == 'push'
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Configure Docker for Artifact Registry
+        if: github.event_name == 'push'
+        run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+
+      - name: Push Docker image
+        if: github.event_name == 'push'
+        run: docker push "$IMAGE_URI"
+
       - name: Deploy to Google Cloud Run
         if: github.event_name == 'push'
         run: |
           gcloud run deploy modern-shop \
-            --source . \
-            --project project-d19903b7-9770-47e8-beb \
-            --region europe-west1 \
+            --image "$IMAGE_URI" \
+            --project "$PROJECT_ID" \
+            --region "$REGION" \
             --allow-unauthenticated \
             --port 8080 \
             --memory 512Mi \
