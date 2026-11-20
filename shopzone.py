@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, jsonify, request, session
 
-APP_VERSION = "1.0.2"
+APP_VERSION = "1.0.3"
 
 app = Flask(__name__, template_folder="templates")
 
