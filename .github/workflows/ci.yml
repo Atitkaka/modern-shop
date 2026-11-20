@@ -28,23 +28,6 @@ jobs:
 
       - name: Run application health test
         run: |
-<<<<<<< HEAD
-          docker run -d -p 8080:8080 --name modern-shop-test atitk/modern-shop:latest
-          sleep 5
-          curl --fail http://localhost:8080/health
-          docker stop modern-shop-test
-
-      - name: Log in to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Push image to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: docker push atitk/modern-shop:latest
-=======
           docker run -d -p 8080:8080 --name modern-shop-test modern-shop:test
           for i in {1..15}; do
             if curl --fail http://localhost:8080/health; then
@@ -79,4 +62,3 @@ jobs:
             --cpu 1 \
             --min 0 \
             --max 2
->>>>>>> 8615a89dceead9299963724940bfed93f5bc74b1
