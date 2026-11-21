@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, jsonify, request, session
 
-APP_VERSION = "1.0.4"
+APP_VERSION = "1.0.5"
 
 app = Flask(__name__, template_folder="templates")
 
@@ -14,7 +14,7 @@ products = [
         "id": 1,
         "name": "Premium Laptop",
         "category": "Electronics",
-        "price": 1800.00,
+        "price": 2220.00,
         "description": "High-performance laptop for work and entertainment.",
         "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=700",
         "rating": 4.8
