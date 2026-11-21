@@ -22,6 +22,7 @@ class TestShopzoneApi(unittest.TestCase):
         self.assertEqual(products[0]["id"], 1)
 
     def test_add_to_cart_accumulates_quantity_and_total(self):
+        product = self.client.get("/api/products").get_json()[0]
         self.client.post("/api/cart/add", json={"id": 1, "quantity": 2})
         response = self.client.post(
             "/api/cart/add",
@@ -31,7 +32,7 @@ class TestShopzoneApi(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         cart = response.get_json()["cart"]
         self.assertEqual(cart["total_count"], 3)
-        self.assertEqual(cart["total"], 2250.0)
+        self.assertEqual(cart["total"], product["price"] * 3)
         self.assertEqual(cart["items"][0]["quantity"], 3)
 
     def test_add_to_cart_rejects_invalid_quantity(self):
@@ -64,13 +65,14 @@ class TestShopzoneApi(unittest.TestCase):
         self.assertEqual(response.get_json()["total_count"], 0)
 
     def test_checkout_clears_cart(self):
+        product = self.client.get("/api/products").get_json()[0]
         self.client.post("/api/cart/add", json={"id": 1})
 
         checkout_response = self.client.post("/api/checkout")
         cart_response = self.client.get("/api/cart")
 
         self.assertEqual(checkout_response.status_code, 200)
-        self.assertEqual(checkout_response.get_json()["total"], 750.0)
+        self.assertEqual(checkout_response.get_json()["total"], product["price"])
         self.assertEqual(cart_response.get_json()["items"], [])
 
     def test_checkout_rejects_empty_cart(self):
