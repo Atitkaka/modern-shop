@@ -14,7 +14,7 @@ products = [
         "id": 1,
         "name": "Premium Laptop",
         "category": "Electronics",
-        "price": 9999.00,
+        "price": 9099.00,
         "description": "High-performance laptop for work and entertainment.",
         "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=700",
         "rating": 4.8
